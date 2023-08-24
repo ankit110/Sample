@@ -1,0 +1,46 @@
+# Deployment YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-insurance-rest-api
+  labels:
+    app: home-insurance-rest-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: home-insurance-rest-api
+  template:
+    metadata:
+      labels:
+        app: home-insurance-rest-api
+    spec:
+      containers:
+      - name: home-insurance-rest-api
+        image: ritamcharan/home-insurance-rest-api:v6-SNAPSHOT
+        ports:
+        - containerPort: 7090
+        env:
+        - name: SPRING_DATASOURCE_USERNAME
+          value: postgres
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: admin
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgres-db.default.svc.cluster.local:5432/HomeInsuranceDatabase
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: update
+---
+# Service YAML
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-insurance-rest-api
+  labels:
+    app: home-insurance-rest-api
+spec:
+  ports:
+  - port: 7090
+    targetPort: 7090
+  selector:
+    app: home-insurance-rest-api
+  type: LoadBalancer
